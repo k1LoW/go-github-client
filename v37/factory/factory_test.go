@@ -44,8 +44,8 @@ func TestGetTokenAndEndpointFromEnv(t *testing.T) {
 	}
 }
 
-func TestNewGitHubClient(t *testing.T) {
-	_, err := NewGitHubClient()
+func TestNewGithubClient(t *testing.T) {
+	_, err := NewGithubClient()
 	if err != nil {
 		t.Error(err)
 	}

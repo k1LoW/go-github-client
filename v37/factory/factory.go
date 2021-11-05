@@ -69,8 +69,8 @@ func Timeout(to time.Duration) Option {
 	}
 }
 
-// NewGitHubClient returns github.com/google/go-github/v37/github.Client
-func NewGitHubClient(opts ...Option) (*github.Client, error) {
+// NewGithubClient returns github.com/google/go-github/v37/github.Client
+func NewGithubClient(opts ...Option) (*github.Client, error) {
 	c := &Config{
 		Token:               "",
 		DialTimeout:         5 * time.Second,

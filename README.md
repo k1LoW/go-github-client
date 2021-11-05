@@ -14,7 +14,7 @@ import (
 
 func main() {
 	ctx := context.Background()
-	c, _ := factory.NewGitHubClient()
+	c, _ := factory.NewGithubClient()
 	u, _, _ := c.Users.Get(ctx, "k1LoW")
 	fmt.Printf("%s\n", u.GetLocation())
 }
