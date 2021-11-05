@@ -69,6 +69,7 @@ func Timeout(to time.Duration) Option {
 	}
 }
 
+// NewGitHubClient returns github.com/google/go-github/v35/github.Client
 func NewGitHubClient(opts ...Option) (*github.Client, error) {
 	c := &Config{
 		Token:               "",
