@@ -1,6 +1,10 @@
 # go-github-client
 
+:octocat: [go-github](https://github.com/google/go-github) client factory.
+
 ## Usage
+
+go-github-client/[VERSION]/factory.NewGithubClient() returns github.com/google/go-github/[VERSION]/github.Client with environment variable resolution
 
 ``` go
 package main
