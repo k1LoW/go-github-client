@@ -11,11 +11,7 @@ lint:
 	cd $(LATEST_GO_GITHUB)/ && golangci-lint run --config=../.golangci.yml ./...
 
 update:
-	rm -f $(LATEST_GO_GITHUB)/go.*
-	cd $(LATEST_GO_GITHUB)/ && echo "module \"$$(pwd | sed -e 's/.*\/src\///')\"" > go.mod
-	cd $(LATEST_GO_GITHUB)/ && go mod tidy
-	$(MAKE) test
-	git tag $$(cat $(LATEST_GO_GITHUB)/go.mod | grep google/go-github | cut -f 3 -d ' ') -f
+	scripts/update.sh $(LATEST_GO_GITHUB)
 	$(MAKE) copy
 
 copy:
