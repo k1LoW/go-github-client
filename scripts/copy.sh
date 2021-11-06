@@ -12,3 +12,4 @@ cd $dest
 echo "module \"$(pwd | sed -e 's/.*\/src\///')\"" > go.mod
 go mod tidy
 go test ./...
+git tag $(cat go.mod | grep google/go-github | cut -f 3 -d ' ') -f
