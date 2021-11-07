@@ -63,3 +63,11 @@ func TestUsingMock(t *testing.T) {
 	}
 }
 ```
+
+## Versioning
+
+| Version | Description |
+| --- | --- |
+| Major | google/go-github major version |
+| Minor | google/go-github minor version |
+| Patch | google/go-github patch version + k1LoW/go-github-client update |
