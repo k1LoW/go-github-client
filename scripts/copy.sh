@@ -2,6 +2,7 @@
 
 src=$1
 dest=$2
+patch=1
 
 rm -rf $dest
 cp -r $src $dest
@@ -13,4 +14,4 @@ echo "module \"$(pwd | sed -e 's/.*\/src\///')\"" > go.mod
 go mod tidy
 go test ./...
 git add .
-git tag $(cat go.mod | grep "google/go-github/$dest" | cut -f 2 -d ' ') -f
+git tag -f $(cat go.mod | grep "google/go-github/$dest" | cut -f 2 -d ' ' | awk -F. -v patch=$patch '{print $1 "." $2 "." $3+patch}')
