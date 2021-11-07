@@ -20,6 +20,7 @@ type Config struct {
 	DialTimeout         time.Duration
 	TLSHandshakeTimeout time.Duration
 	Timeout             time.Duration
+	HTTPClient          *http.Client
 }
 
 type Option func(*Config) error
@@ -69,6 +70,15 @@ func Timeout(to time.Duration) Option {
 	}
 }
 
+func HTTPClient(httpClient *http.Client) Option {
+	return func(c *Config) error {
+		if httpClient != nil {
+			c.HTTPClient = httpClient
+		}
+		return nil
+	}
+}
+
 // NewGithubClient returns github.com/google/go-github/v34/github.Client with environment variable resolution
 func NewGithubClient(opts ...Option) (*github.Client, error) {
 	c := &Config{
@@ -89,7 +99,7 @@ func NewGithubClient(opts ...Option) (*github.Client, error) {
 		c.Token = token
 	}
 
-	if c.Token == "" {
+	if c.Token == "" && c.HTTPClient == nil {
 		return nil, fmt.Errorf("env %s is not set", "GITHUB_TOKEN")
 	}
 
@@ -143,6 +153,9 @@ func (rt roundTripper) RoundTrip(r *http.Request) (*http.Response, error) {
 }
 
 func httpClient(c *Config) *http.Client {
+	if c.HTTPClient != nil {
+		return c.HTTPClient
+	}
 	t := &http.Transport{
 		Dial: (&net.Dialer{
 			Timeout: c.DialTimeout,

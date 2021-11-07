@@ -1,7 +1,11 @@
 package factory
 
 import (
+	"context"
 	"testing"
+
+	"github.com/google/go-github/v35/github"
+	"github.com/migueleliasweb/go-github-mock/src/mock"
 )
 
 func TestGetTokenAndEndpointFromEnv(t *testing.T) {
@@ -48,5 +52,29 @@ func TestNewGithubClient(t *testing.T) {
 	_, err := NewGithubClient()
 	if err != nil {
 		t.Error(err)
+	}
+}
+
+func TestNewGithubClientUsingMock(t *testing.T) {
+	mockedHTTPClient := mock.NewMockedHTTPClient(
+		mock.WithRequestMatch(
+			mock.GetUsersByUsername,
+			github.User{
+				Name: github.String("foobar"),
+			},
+		),
+	)
+	c, err := NewGithubClient(HTTPClient(mockedHTTPClient))
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx := context.Background()
+	user, _, err := c.Users.Get(ctx, "myuser")
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := user.GetName()
+	if want := "foobar"; got != want {
+		t.Errorf("got %v\nwant %v", got, want)
 	}
 }
