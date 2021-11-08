@@ -117,6 +117,13 @@ func NewGithubClient(opts ...Option) (*github.Client, error) {
 			baseEndpoint.Path += "/"
 		}
 		v3c.BaseURL = baseEndpoint
+
+		if !strings.Contains(baseEndpoint.Host, defaultHost) {
+			v3c.UploadURL, err = url.Parse(fmt.Sprintf("https://%s/api/uploads/", baseEndpoint.Host))
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
 
 	return v3c, nil

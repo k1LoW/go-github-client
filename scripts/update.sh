@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ver=$1
-patch=1
+patch=2
 
 rm -f $ver/go.*
 cd $ver/
