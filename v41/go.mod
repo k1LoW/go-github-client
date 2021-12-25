@@ -1,4 +1,4 @@
-module github.com/k1LoW/go-github-client/v40
+module github.com/k1LoW/go-github-client/v41
 
 go 1.17
 
