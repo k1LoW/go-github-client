@@ -1,4 +1,4 @@
-LATEST_GO_GITHUB=v40
+LATEST_GO_GITHUB=v41
 
 default: test
 
@@ -15,6 +15,7 @@ update:
 	$(MAKE) copy
 
 copy:
+	scripts/copy.sh $(LATEST_GO_GITHUB) v40
 	scripts/copy.sh $(LATEST_GO_GITHUB) v39
 	scripts/copy.sh $(LATEST_GO_GITHUB) v38
 	scripts/copy.sh $(LATEST_GO_GITHUB) v37
