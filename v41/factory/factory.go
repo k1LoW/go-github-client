@@ -79,7 +79,7 @@ func HTTPClient(httpClient *http.Client) Option {
 	}
 }
 
-// NewGithubClient returns github.com/google/go-github/v39/github.Client with environment variable resolution
+// NewGithubClient returns github.com/google/go-github/v41/github.Client with environment variable resolution
 func NewGithubClient(opts ...Option) (*github.Client, error) {
 	c := &Config{
 		Token:               "",
