@@ -13,6 +13,9 @@ import (
 )
 
 const defaultHost = "github.com"
+const defaultV3Endpoint = "https://api.github.com"
+const defaultUploadEndpoint = "https://uploads.github.com"
+const defaultV4Endpoint = "https://api.github.com/graphql"
 
 type Config struct {
 	Token               string
@@ -93,7 +96,7 @@ func NewGithubClient(opts ...Option) (*github.Client, error) {
 		}
 	}
 
-	token, v3ep := getTokenAndEndpointFromEnv()
+	token, v3ep, v3upload, _ := GetTokenAndEndpoints()
 
 	if c.Token == "" {
 		c.Token = token
@@ -103,34 +106,48 @@ func NewGithubClient(opts ...Option) (*github.Client, error) {
 		return nil, fmt.Errorf("env %s is not set", "GITHUB_TOKEN")
 	}
 
-	if c.Endpoint == "" {
-		c.Endpoint = v3ep
+	ep := c.Endpoint
+	if ep == "" {
+		ep = v3ep
 	}
 
 	v3c := github.NewClient(httpClient(c))
-	if c.Endpoint != "" {
-		baseEndpoint, err := url.Parse(c.Endpoint)
-		if err != nil {
-			return nil, err
-		}
-		if !strings.HasSuffix(baseEndpoint.Path, "/") {
-			baseEndpoint.Path += "/"
-		}
-		v3c.BaseURL = baseEndpoint
+	baseEndpoint, err := url.Parse(ep)
+	if err != nil {
+		return nil, err
+	}
+	if !strings.HasSuffix(baseEndpoint.Path, "/") {
+		baseEndpoint.Path += "/"
+	}
+	v3c.BaseURL = baseEndpoint
 
+	if c.Endpoint != "" {
 		if !strings.Contains(baseEndpoint.Host, defaultHost) {
 			v3c.UploadURL, err = url.Parse(fmt.Sprintf("https://%s/api/uploads/", baseEndpoint.Host))
 			if err != nil {
 				return nil, err
 			}
 		}
+	} else {
+		uploadEndpoint, err := url.Parse(v3upload)
+		if err != nil {
+			return nil, err
+		}
+		if !strings.HasSuffix(uploadEndpoint.Path, "/") {
+			uploadEndpoint.Path += "/"
+		}
+		v3c.UploadURL = uploadEndpoint
 	}
 
 	return v3c, nil
 }
 
-func getTokenAndEndpointFromEnv() (string, string) {
-	var token, v3ep string
+// GetTokenAndEndpoints returns token and endpoints. The endpoints to be generated are URLs without a trailing slash.
+func GetTokenAndEndpoints() (string, string, string, string) {
+	var token string
+	v3ep := defaultV3Endpoint
+	v3upload := defaultUploadEndpoint
+	v4ep := defaultV4Endpoint
 	if os.Getenv("GH_HOST") != "" && os.Getenv("GH_HOST") != defaultHost {
 		// GitHub Enterprise Server
 		token = os.Getenv("GH_ENTERPRISE_TOKEN")
@@ -138,15 +155,29 @@ func getTokenAndEndpointFromEnv() (string, string) {
 			token = os.Getenv("GITHUB_ENTERPRISE_TOKEN")
 		}
 		v3ep = fmt.Sprintf("https://%s/api/v3", os.Getenv("GH_HOST"))
+		v3upload = fmt.Sprintf("https://%s/api/uploads", os.Getenv("GH_HOST"))
+		v4ep = fmt.Sprintf("https://%s/api/graphql", os.Getenv("GH_HOST"))
 	} else if os.Getenv("GH_TOKEN") != "" {
 		// GitHub.com
 		token = os.Getenv("GH_TOKEN")
 	} else {
-		// GitHub Actions
+		// GitHub Actions or GitHub.com
 		token = os.Getenv("GITHUB_TOKEN")
-		v3ep = os.Getenv("GITHUB_API_URL")
+		if os.Getenv("GITHUB_API_URL") != "" {
+			v3ep = os.Getenv("GITHUB_API_URL")
+			ep, err := url.Parse(v3ep)
+			if err == nil && ep.Host != "" {
+				if !strings.Contains(ep.Host, defaultHost) {
+					v3upload = fmt.Sprintf("https://%s/api/uploads", ep.Host)
+				}
+			}
+		}
+		if os.Getenv("GITHUB_GRAPHQL_URL") != "" {
+			v4ep = os.Getenv("GITHUB_GRAPHQL_URL")
+		}
 	}
-	return token, v3ep
+
+	return token, v3ep, v3upload, v4ep
 }
 
 type roundTripper struct {

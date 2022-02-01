@@ -8,7 +8,7 @@ import (
 	"github.com/migueleliasweb/go-github-mock/src/mock"
 )
 
-func TestGetTokenAndEndpointFromEnv(t *testing.T) {
+func TestGetTokenAndEndpoints(t *testing.T) {
 	tests := []struct {
 		GH_HOST                 string
 		GH_ENTERPRISE_TOKEN     string
@@ -18,17 +18,18 @@ func TestGetTokenAndEndpointFromEnv(t *testing.T) {
 		GITHUB_API_URL          string
 		wantToken               string
 		wantEndpoint            string
-		wantUploadURL           string
+		wantUploadEndpoint      string
+		wantV4Endpoint          string
 	}{
-		{"", "", "", "", "", "", "", "", "https://uploads.github.com"},
-		{"git.example.com", "", "", "", "", "", "", "https://git.example.com/api/v3", ""},
-		{"git.example.com", "GH_ENTERPRISE_TOKEN", "", "", "", "", "GH_ENTERPRISE_TOKEN", "https://git.example.com/api/v3", ""},
-		{"git.example.com", "GH_ENTERPRISE_TOKEN", "GITHUB_ENTERPRISE_TOKEN", "", "", "", "GH_ENTERPRISE_TOKEN", "https://git.example.com/api/v3", ""},
-		{"git.example.com", "", "GITHUB_ENTERPRISE_TOKEN", "", "", "", "GITHUB_ENTERPRISE_TOKEN", "https://git.example.com/api/v3", ""},
-		{"github.com", "GH_ENTERPRISE_TOKEN", "", "", "", "", "", "", ""},
-		{"", "", "", "GH_TOKEN", "", "", "GH_TOKEN", "", ""},
-		{"", "", "", "", "GITHUB_TOKEN", "", "GITHUB_TOKEN", "", ""},
-		{"", "", "", "", "", "GITHUB_API_URL", "", "GITHUB_API_URL", ""},
+		{"", "", "", "", "", "", "", "https://api.github.com", "https://uploads.github.com", "https://api.github.com/graphql"},
+		{"git.example.com", "", "", "", "", "", "", "https://git.example.com/api/v3", "https://git.example.com/api/uploads", "https://git.example.com/api/graphql"},
+		{"git.example.com", "GH_ENTERPRISE_TOKEN", "", "", "", "", "GH_ENTERPRISE_TOKEN", "https://git.example.com/api/v3", "https://git.example.com/api/uploads", "https://git.example.com/api/graphql"},
+		{"git.example.com", "GH_ENTERPRISE_TOKEN", "GITHUB_ENTERPRISE_TOKEN", "", "", "", "GH_ENTERPRISE_TOKEN", "https://git.example.com/api/v3", "https://git.example.com/api/uploads", "https://git.example.com/api/graphql"},
+		{"git.example.com", "", "GITHUB_ENTERPRISE_TOKEN", "", "", "", "GITHUB_ENTERPRISE_TOKEN", "https://git.example.com/api/v3", "https://git.example.com/api/uploads", "https://git.example.com/api/graphql"},
+		{"github.com", "GH_ENTERPRISE_TOKEN", "", "", "", "", "", "https://api.github.com", "https://uploads.github.com", "https://api.github.com/graphql"},
+		{"", "", "", "GH_TOKEN", "", "", "GH_TOKEN", "https://api.github.com", "https://uploads.github.com", "https://api.github.com/graphql"},
+		{"", "", "", "", "GITHUB_TOKEN", "", "GITHUB_TOKEN", "https://api.github.com", "https://uploads.github.com", "https://api.github.com/graphql"},
+		{"", "", "", "", "", "GITHUB_API_URL", "", "GITHUB_API_URL", "https://uploads.github.com", "https://api.github.com/graphql"},
 	}
 	for _, tt := range tests {
 		t.Setenv("GH_HOST", tt.GH_HOST)
@@ -37,7 +38,7 @@ func TestGetTokenAndEndpointFromEnv(t *testing.T) {
 		t.Setenv("GH_TOKEN", tt.GH_TOKEN)
 		t.Setenv("GITHUB_TOKEN", tt.GITHUB_TOKEN)
 		t.Setenv("GITHUB_API_URL", tt.GITHUB_API_URL)
-		gotToken, gotEndpoint := getTokenAndEndpointFromEnv()
+		gotToken, gotEndpoint, gotUploadEndpoint, gotV4Endpoint := GetTokenAndEndpoints()
 
 		if gotToken != tt.wantToken {
 			t.Errorf("got %v\nwant %v", gotToken, tt.wantToken)
@@ -45,6 +46,14 @@ func TestGetTokenAndEndpointFromEnv(t *testing.T) {
 
 		if gotEndpoint != tt.wantEndpoint {
 			t.Errorf("got %v\nwant %v", gotEndpoint, tt.wantEndpoint)
+		}
+
+		if gotUploadEndpoint != tt.wantUploadEndpoint {
+			t.Errorf("got %v\nwant %v", gotUploadEndpoint, tt.wantUploadEndpoint)
+		}
+
+		if gotV4Endpoint != tt.wantV4Endpoint {
+			t.Errorf("got %v\nwant %v", gotV4Endpoint, tt.wantV4Endpoint)
 		}
 	}
 }
