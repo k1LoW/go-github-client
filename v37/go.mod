@@ -1,10 +1,10 @@
 module github.com/k1LoW/go-github-client/v37
 
-go 1.17
+go 1.18
 
 require (
 	github.com/google/go-github/v37 v37.0.0
-	github.com/migueleliasweb/go-github-mock v0.0.6
+	github.com/migueleliasweb/go-github-mock v0.0.8
 )
 
 require (
