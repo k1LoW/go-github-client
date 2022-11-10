@@ -1,9 +1,9 @@
-module github.com/k1LoW/go-github-client/v43
+module github.com/k1LoW/go-github-client/v47
 
 go 1.19
 
 require (
-	github.com/google/go-github/v43 v43.0.0
+	github.com/google/go-github/v47 v47.1.0
 	github.com/migueleliasweb/go-github-mock v0.0.13
 )
 
