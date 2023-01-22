@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/google/go-github/v34 v34.0.0
-	github.com/migueleliasweb/go-github-mock v0.0.13
+	github.com/migueleliasweb/go-github-mock v0.0.14
 )
 
 require (
