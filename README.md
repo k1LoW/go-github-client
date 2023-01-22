@@ -13,7 +13,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/k1LoW/go-github-client/v39/factory"
+	"github.com/k1LoW/go-github-client/v49/factory"
 )
 
 func main() {
@@ -33,8 +33,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/google/go-github/v39/github"
-	"github.com/k1LoW/go-github-client/v39/factory"
+	"github.com/google/go-github/v49/github"
+	"github.com/k1LoW/go-github-client/v49/factory"
 	"github.com/migueleliasweb/go-github-mock/src/mock"
 )
 
