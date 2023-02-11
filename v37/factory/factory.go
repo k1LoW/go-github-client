@@ -155,9 +155,6 @@ func GetTokenAndEndpoints() (string, string, string, string) {
 		v3ep = fmt.Sprintf("https://%s/api/v3", host)
 		v3upload = fmt.Sprintf("https://%s/api/uploads", host)
 		v4ep = fmt.Sprintf("https://%s/api/graphql", host)
-	} else if os.Getenv("GH_TOKEN") != "" {
-		// GitHub.com
-		token = os.Getenv("GH_TOKEN")
 	} else {
 		// GitHub Actions or GitHub.com
 		if os.Getenv("GITHUB_API_URL") != "" {
