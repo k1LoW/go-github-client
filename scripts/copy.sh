@@ -15,4 +15,5 @@ echo "module \"$(pwd | sed -e 's/.*\/src\///')\"" > go.mod
 go mod tidy
 go test ./...
 git add .
+git commit -m "Update $dest"
 git tag $(cat go.mod | grep "google/go-github/$dest" | cut -f 2 -d ' ' | awk -F. -v patch=$patch '{print $1 "." $2 "." $3+patch}') || true
