@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/cli/go-gh/pkg/auth"
 	"github.com/google/go-github/v35/github"
 )
 
@@ -144,25 +145,21 @@ func NewGithubClient(opts ...Option) (*github.Client, error) {
 
 // GetTokenAndEndpoints returns token and endpoints. The endpoints to be generated are URLs without a trailing slash.
 func GetTokenAndEndpoints() (string, string, string, string) {
-	var token string
+	host, _ := auth.DefaultHost()
+	token, _ := auth.TokenForHost(host)
 	v3ep := defaultV3Endpoint
 	v3upload := defaultUploadEndpoint
 	v4ep := defaultV4Endpoint
-	if os.Getenv("GH_HOST") != "" && os.Getenv("GH_HOST") != defaultHost {
+	if host != defaultHost {
 		// GitHub Enterprise Server
-		token = os.Getenv("GH_ENTERPRISE_TOKEN")
-		if token == "" {
-			token = os.Getenv("GITHUB_ENTERPRISE_TOKEN")
-		}
-		v3ep = fmt.Sprintf("https://%s/api/v3", os.Getenv("GH_HOST"))
-		v3upload = fmt.Sprintf("https://%s/api/uploads", os.Getenv("GH_HOST"))
-		v4ep = fmt.Sprintf("https://%s/api/graphql", os.Getenv("GH_HOST"))
+		v3ep = fmt.Sprintf("https://%s/api/v3", host)
+		v3upload = fmt.Sprintf("https://%s/api/uploads", host)
+		v4ep = fmt.Sprintf("https://%s/api/graphql", host)
 	} else if os.Getenv("GH_TOKEN") != "" {
 		// GitHub.com
 		token = os.Getenv("GH_TOKEN")
 	} else {
 		// GitHub Actions or GitHub.com
-		token = os.Getenv("GITHUB_TOKEN")
 		if os.Getenv("GITHUB_API_URL") != "" {
 			v3ep = os.Getenv("GITHUB_API_URL")
 			ep, err := url.Parse(v3ep)

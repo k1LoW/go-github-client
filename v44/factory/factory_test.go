@@ -2,13 +2,22 @@ package factory
 
 import (
 	"context"
+	"fmt"
+	"os"
+	"path/filepath"
 	"testing"
 
+	"github.com/cli/go-gh/pkg/config"
 	"github.com/google/go-github/v44/github"
 	"github.com/migueleliasweb/go-github-mock/src/mock"
 )
 
 func TestGetTokenAndEndpoints(t *testing.T) {
+	t.Setenv("GH_CONFIG_DIR", filepath.Join(testdataDir(t), "config"))
+	// set config
+	// ref: https://github.com/cli/go-gh/blob/98bbeb261673e1c506e965ab1553bfbaf5318250/pkg/config/config.go#L124-L128
+	_, _ = config.Read()
+
 	tests := []struct {
 		GH_HOST                 string
 		GH_ENTERPRISE_TOKEN     string
@@ -21,40 +30,42 @@ func TestGetTokenAndEndpoints(t *testing.T) {
 		wantUploadEndpoint      string
 		wantV4Endpoint          string
 	}{
-		{"", "", "", "", "", "", "", "https://api.github.com", "https://uploads.github.com", "https://api.github.com/graphql"},
+		{"", "", "", "", "", "", "gho_XXXXXxxxxXXXXxxxXXXXXX", "https://api.github.com", "https://uploads.github.com", "https://api.github.com/graphql"},
 		{"git.example.com", "", "", "", "", "", "", "https://git.example.com/api/v3", "https://git.example.com/api/uploads", "https://git.example.com/api/graphql"},
 		{"git.example.com", "GH_ENTERPRISE_TOKEN", "", "", "", "", "GH_ENTERPRISE_TOKEN", "https://git.example.com/api/v3", "https://git.example.com/api/uploads", "https://git.example.com/api/graphql"},
 		{"git.example.com", "GH_ENTERPRISE_TOKEN", "GITHUB_ENTERPRISE_TOKEN", "", "", "", "GH_ENTERPRISE_TOKEN", "https://git.example.com/api/v3", "https://git.example.com/api/uploads", "https://git.example.com/api/graphql"},
 		{"git.example.com", "", "GITHUB_ENTERPRISE_TOKEN", "", "", "", "GITHUB_ENTERPRISE_TOKEN", "https://git.example.com/api/v3", "https://git.example.com/api/uploads", "https://git.example.com/api/graphql"},
-		{"github.com", "GH_ENTERPRISE_TOKEN", "", "", "", "", "", "https://api.github.com", "https://uploads.github.com", "https://api.github.com/graphql"},
+		{"github.com", "GH_ENTERPRISE_TOKEN", "", "", "", "", "gho_XXXXXxxxxXXXXxxxXXXXXX", "https://api.github.com", "https://uploads.github.com", "https://api.github.com/graphql"},
 		{"", "", "", "GH_TOKEN", "", "", "GH_TOKEN", "https://api.github.com", "https://uploads.github.com", "https://api.github.com/graphql"},
 		{"", "", "", "", "GITHUB_TOKEN", "", "GITHUB_TOKEN", "https://api.github.com", "https://uploads.github.com", "https://api.github.com/graphql"},
-		{"", "", "", "", "", "GITHUB_API_URL", "", "GITHUB_API_URL", "https://uploads.github.com", "https://api.github.com/graphql"},
+		{"", "", "", "", "", "GITHUB_API_URL", "gho_XXXXXxxxxXXXXxxxXXXXXX", "GITHUB_API_URL", "https://uploads.github.com", "https://api.github.com/graphql"},
 	}
-	for _, tt := range tests {
-		t.Setenv("GH_HOST", tt.GH_HOST)
-		t.Setenv("GH_ENTERPRISE_TOKEN", tt.GH_ENTERPRISE_TOKEN)
-		t.Setenv("GITHUB_ENTERPRISE_TOKEN", tt.GITHUB_ENTERPRISE_TOKEN)
-		t.Setenv("GH_TOKEN", tt.GH_TOKEN)
-		t.Setenv("GITHUB_TOKEN", tt.GITHUB_TOKEN)
-		t.Setenv("GITHUB_API_URL", tt.GITHUB_API_URL)
-		gotToken, gotEndpoint, gotUploadEndpoint, gotV4Endpoint := GetTokenAndEndpoints()
+	for i, tt := range tests {
+		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
+			t.Setenv("GH_HOST", tt.GH_HOST)
+			t.Setenv("GH_ENTERPRISE_TOKEN", tt.GH_ENTERPRISE_TOKEN)
+			t.Setenv("GITHUB_ENTERPRISE_TOKEN", tt.GITHUB_ENTERPRISE_TOKEN)
+			t.Setenv("GH_TOKEN", tt.GH_TOKEN)
+			t.Setenv("GITHUB_TOKEN", tt.GITHUB_TOKEN)
+			t.Setenv("GITHUB_API_URL", tt.GITHUB_API_URL)
+			gotToken, gotEndpoint, gotUploadEndpoint, gotV4Endpoint := GetTokenAndEndpoints()
 
-		if gotToken != tt.wantToken {
-			t.Errorf("got %v\nwant %v", gotToken, tt.wantToken)
-		}
+			if gotToken != tt.wantToken {
+				t.Errorf("got %v\nwant %v", gotToken, tt.wantToken)
+			}
 
-		if gotEndpoint != tt.wantEndpoint {
-			t.Errorf("got %v\nwant %v", gotEndpoint, tt.wantEndpoint)
-		}
+			if gotEndpoint != tt.wantEndpoint {
+				t.Errorf("got %v\nwant %v", gotEndpoint, tt.wantEndpoint)
+			}
 
-		if gotUploadEndpoint != tt.wantUploadEndpoint {
-			t.Errorf("got %v\nwant %v", gotUploadEndpoint, tt.wantUploadEndpoint)
-		}
+			if gotUploadEndpoint != tt.wantUploadEndpoint {
+				t.Errorf("got %v\nwant %v", gotUploadEndpoint, tt.wantUploadEndpoint)
+			}
 
-		if gotV4Endpoint != tt.wantV4Endpoint {
-			t.Errorf("got %v\nwant %v", gotV4Endpoint, tt.wantV4Endpoint)
-		}
+			if gotV4Endpoint != tt.wantV4Endpoint {
+				t.Errorf("got %v\nwant %v", gotV4Endpoint, tt.wantV4Endpoint)
+			}
+		})
 	}
 }
 
@@ -130,4 +141,17 @@ func TestNewGithubClientUsingMock(t *testing.T) {
 	if want := "foobar"; got != want {
 		t.Errorf("got %v\nwant %v", got, want)
 	}
+}
+
+func testdataDir(t *testing.T) string {
+	t.Helper()
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	dir, err := filepath.Abs(filepath.Join(filepath.Dir(wd), "testdata"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	return dir
 }
