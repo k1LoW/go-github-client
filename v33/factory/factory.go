@@ -1,6 +1,7 @@
 package factory
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -112,7 +113,7 @@ func NewGithubClient(opts ...Option) (*github.Client, error) {
 	}
 
 	if !c.SkipAuth && c.Token == "" && c.HTTPClient == nil {
-		return nil, fmt.Errorf("unable to locate credentials")
+		return nil, errors.New("no credentials found")
 	}
 
 	if c.SkipAuth {
