@@ -25,6 +25,7 @@ type Config struct {
 	TLSHandshakeTimeout time.Duration
 	Timeout             time.Duration
 	HTTPClient          *http.Client
+	SkipAuth            bool
 }
 
 type Option func(*Config) error
@@ -83,6 +84,13 @@ func HTTPClient(httpClient *http.Client) Option {
 	}
 }
 
+func SkipAuth(enable bool) Option {
+	return func(c *Config) error {
+		c.SkipAuth = enable
+		return nil
+	}
+}
+
 // NewGithubClient returns github.com/google/go-github/v33/github.Client with environment variable resolution
 func NewGithubClient(opts ...Option) (*github.Client, error) {
 	c := &Config{
@@ -103,8 +111,12 @@ func NewGithubClient(opts ...Option) (*github.Client, error) {
 		c.Token = token
 	}
 
-	if c.Token == "" && c.HTTPClient == nil {
-		return nil, fmt.Errorf("env %s is not set", "GITHUB_TOKEN")
+	if !c.SkipAuth && c.Token == "" && c.HTTPClient == nil {
+		return nil, fmt.Errorf("unable to locate credentials")
+	}
+
+	if c.SkipAuth {
+		c.Token = ""
 	}
 
 	ep := c.Endpoint
@@ -180,7 +192,9 @@ type roundTripper struct {
 }
 
 func (rt roundTripper) RoundTrip(r *http.Request) (*http.Response, error) {
-	r.Header.Set("Authorization", fmt.Sprintf("token %s", rt.accessToken))
+	if rt.accessToken != "" {
+		r.Header.Set("Authorization", fmt.Sprintf("token %s", rt.accessToken))
+	}
 	return rt.transport.RoundTrip(r)
 }
 
