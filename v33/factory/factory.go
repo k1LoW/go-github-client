@@ -178,6 +178,10 @@ func GetTokenAndEndpoints() (string, string, string, string) {
 					v3upload = fmt.Sprintf("https://%s/api/uploads", ep.Host)
 				}
 			}
+			if token == "" && v3ep != defaultV3Endpoint {
+				// GitHub Actions and NOT GitHub.com
+				token, _ = auth.TokenForHost(ep.Host)
+			}
 		}
 		if os.Getenv("GITHUB_GRAPHQL_URL") != "" {
 			v4ep = os.Getenv("GITHUB_GRAPHQL_URL")
