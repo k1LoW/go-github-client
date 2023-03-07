@@ -7,9 +7,11 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/bradleyfalzon/ghinstallation/v2"
 	"github.com/cli/go-gh/pkg/auth"
 	"github.com/google/go-github/v50/github"
 )
@@ -112,10 +114,6 @@ func NewGithubClient(opts ...Option) (*github.Client, error) {
 		c.Token = token
 	}
 
-	if !c.SkipAuth && c.Token == "" && c.HTTPClient == nil {
-		return nil, errors.New("no credentials found")
-	}
-
 	if c.SkipAuth {
 		c.Token = ""
 	}
@@ -123,6 +121,14 @@ func NewGithubClient(opts ...Option) (*github.Client, error) {
 	ep := c.Endpoint
 	if ep == "" {
 		ep = v3ep
+	}
+
+	if !c.SkipAuth && c.Token == "" && c.HTTPClient == nil {
+		hc, err := newHTTPClientUsingGitHubApp(c, ep)
+		if err != nil {
+			return nil, errors.New("no credentials found")
+		}
+		c.HTTPClient = hc
 	}
 
 	v3c := github.NewClient(httpClient(c))
@@ -199,6 +205,33 @@ func (rt roundTripper) RoundTrip(r *http.Request) (*http.Response, error) {
 	return rt.transport.RoundTrip(r)
 }
 
+func newHTTPClientUsingGitHubApp(c *Config, ep string) (*http.Client, error) {
+	envAppID := os.Getenv("GITHUB_APP_ID")
+	envInstallaitonID := os.Getenv("GITHUB_APP_INSTALLATION_ID")
+	envPrivateKey := os.Getenv("GITHUB_APP_PRIVATE_KEY")
+	if envAppID == "" || envInstallaitonID == "" || envPrivateKey == "" {
+		// TODO: detect installationID
+		return nil, errors.New("not enough credentials to authenticate using GitHub app")
+	}
+	appID, err := strconv.ParseInt(envAppID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	installationID, err := strconv.ParseInt(envInstallaitonID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	privateKey := []byte(repairKey(envPrivateKey))
+	hc := httpClient(c)
+	itr, err := ghinstallation.New(http.DefaultTransport, appID, installationID, privateKey)
+	if err != nil {
+		return nil, err
+	}
+	itr.BaseURL = ep
+	hc.Transport = itr
+	return hc, nil
+}
+
 func httpClient(c *Config) *http.Client {
 	if c.HTTPClient != nil {
 		return c.HTTPClient
@@ -217,4 +250,9 @@ func httpClient(c *Config) *http.Client {
 		Timeout:   c.Timeout,
 		Transport: rt,
 	}
+}
+
+func repairKey(in string) string {
+	repairRep := strings.NewReplacer("-----BEGIN OPENSSH PRIVATE KEY-----", "-----BEGIN_OPENSSH_PRIVATE_KEY-----", "-----END OPENSSH PRIVATE KEY-----", "-----END_OPENSSH_PRIVATE_KEY-----", "-----BEGIN RSA PRIVATE KEY-----", "-----BEGIN_RSA_PRIVATE_KEY-----", "-----END RSA PRIVATE KEY-----", "-----END_RSA_PRIVATE_KEY-----", " ", "\n", "-----BEGIN_OPENSSH_PRIVATE_KEY-----", "-----BEGIN OPENSSH PRIVATE KEY-----", "-----END_OPENSSH_PRIVATE_KEY-----", "-----END OPENSSH PRIVATE KEY-----", "-----BEGIN_RSA_PRIVATE_KEY-----", "-----BEGIN RSA PRIVATE KEY-----", "-----END_RSA_PRIVATE_KEY-----", "-----END RSA PRIVATE KEY-----")
+	return repairRep.Replace(repairRep.Replace(in))
 }
