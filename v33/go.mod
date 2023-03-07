@@ -6,6 +6,7 @@ require (
 	github.com/bradleyfalzon/ghinstallation/v2 v2.2.0
 	github.com/cli/go-gh v1.1.0
 	github.com/google/go-github/v33 v33.0.0
+	github.com/k1LoW/httpstub v0.6.0
 	github.com/migueleliasweb/go-github-mock v0.0.16
 )
 
