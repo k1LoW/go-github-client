@@ -143,6 +143,44 @@ func TestNewGithubClientUsingMock(t *testing.T) {
 	}
 }
 
+func TestDetectOwnerRepo(t *testing.T) {
+	tests := []struct {
+		GH_REPO                 string
+		GITHUB_REPOSITORY       string
+		GITHUB_REPOSITORY_OWNER string
+		wantOwner               string
+		wantRepo                string
+		wantErr                 bool
+	}{
+		{"", "", "", "", "", true},
+		{"example/myrepo", "", "", "example", "myrepo", false},
+		{"git.example.com/example/myrepo", "", "", "example", "myrepo", false},
+		{"", "example/myrepo", "", "example", "myrepo", false},
+		{"example/ourrepo", "example/myrepo", "", "example", "ourrepo", false},
+		{"", "", "example", "example", "", false},
+	}
+	for i, tt := range tests {
+		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
+			t.Setenv("GH_REPO", tt.GH_REPO)
+			t.Setenv("GITHUB_REPOSITORY", tt.GITHUB_REPOSITORY)
+			t.Setenv("GITHUB_REPOSITORY_OWNER", tt.GITHUB_REPOSITORY_OWNER)
+			gotOwner, gotRepo, err := detectOwnerRepo()
+			if err != nil {
+				if !tt.wantErr {
+					t.Errorf("got error: %v", err)
+				}
+				return
+			}
+			if gotOwner != tt.wantOwner {
+				t.Errorf("got %v\nwant %v", gotOwner, tt.wantOwner)
+			}
+			if gotRepo != tt.wantRepo {
+				t.Errorf("got %v\nwant %v", gotRepo, tt.wantRepo)
+			}
+		})
+	}
+}
+
 func testdataDir(t *testing.T) string {
 	t.Helper()
 	wd, err := os.Getwd()
