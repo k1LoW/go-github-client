@@ -13,6 +13,7 @@ find $dest -type f | grep -e '-e' | xargs rm
 cd $dest
 echo "module \"$(pwd | sed -e 's/.*\/src\///')\"" > go.mod
 go mod tidy
+go get -u golang.org/x/crypto
 go test ./...
 git add .
 git commit -m "Update $dest"
