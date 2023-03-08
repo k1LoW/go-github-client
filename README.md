@@ -64,6 +64,14 @@ func TestUsingMock(t *testing.T) {
 }
 ```
 
+## Environment variables that affect client initialization
+
+- `GH_TOKEN`, `GITHUB_TOKEN`
+- `GH_ENTERPRISE_TOKEN`, `GITHUB_ENTERPRISE_TOKEN`
+- `GH_HOST`, `GITHUB_API_URL`, `GITHUB_GRAPHQL_URL`
+- `GH_CONFIG_DIR`
+- `GITHUB_APP_ID`, `GITHUB_APP_INSTALLATION_ID`, `GITHUB_APP_PRIVATE_KEY`, `GH_REPO`, `GITHUB_REPOSITORY`, `GITHUB_REPOSITORY_OWNER` for authentication with a GitHub App
+
 ## Versioning
 
 | Version | Description |
