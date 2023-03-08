@@ -42,6 +42,8 @@ c4pNuVzgPw4B5cRgOviicAgcn02c8JM+gSZVtKf2+Y2EqHJ5Uzl5fOyxQZkyUH9+
 S/v7bzqbRiyelnXleEA/SwS6VVjm3PNad6t/iLtENBoPMrBxq3UjLg==
 -----END RSA PRIVATE KEY-----
 `
+	testOwner = "example"
+	testRepo  = "myapp"
 )
 
 func TestAuthUsingGitHubApp(t *testing.T) {
@@ -54,19 +56,48 @@ func TestAuthUsingGitHubApp(t *testing.T) {
 	t.Setenv("GH_CONFIG_DIR", "/tmp")
 	r := httpstub.NewRouter(t)
 	r.Method(http.MethodPost).Path(fmt.Sprintf("/app/installations/%d/access_tokens", testInstallationID)).ResponseString(http.StatusOK, `{}`)
-	r.Method(http.MethodGet).Path("/users/example/repos").ResponseString(http.StatusOK, `[]`)
+	r.Method(http.MethodGet).Path(fmt.Sprintf("/users/%s/repos", testOwner)).ResponseString(http.StatusOK, `[]`)
 	ts := r.Server()
 	t.Cleanup(func() {
 		ts.Close()
 	})
 	t.Setenv("GITHUB_API_URL", ts.URL)
 	t.Run("t", func(t *testing.T) {
-		t.Parallel()
+		t.Parallel() // to set GH_CONFIG_DIR and create new config
 		c, err := factory.NewGithubClient()
 		if err != nil {
 			t.Fatal(err)
 		}
-		if _, _, err := c.Repositories.List(context.Background(), "example", nil); err != nil {
+		if _, _, err := c.Repositories.List(context.Background(), testOwner, nil); err != nil {
+			t.Error(err)
+		}
+	})
+}
+
+func TestAuthUsingGitHubAppNoInstallationID(t *testing.T) {
+	t.Setenv("GITHUB_TOKEN", "")
+	t.Setenv("GH_TOKEN", "")
+	t.Setenv("GH_ENTERPRISE_TOKEN", "")
+	t.Setenv("GITHUB_APP_ID", strconv.Itoa(testAppID))
+	t.Setenv("GITHUB_APP_PRIVATE_KEY", testPrivateKey)
+	t.Setenv("GITHUB_REPOSITORY", fmt.Sprintf("%s/%s", testOwner, testRepo))
+	t.Setenv("GH_CONFIG_DIR", "/tmp")
+	r := httpstub.NewRouter(t)
+	r.Method(http.MethodGet).Path(fmt.Sprintf("/repos/%s/%s/installation", testOwner, testRepo)).ResponseString(http.StatusOK, fmt.Sprintf(`{"id": %d}`, testInstallationID))
+	r.Method(http.MethodPost).Path(fmt.Sprintf("/app/installations/%d/access_tokens", testInstallationID)).ResponseString(http.StatusOK, `{}`)
+	r.Method(http.MethodGet).Path(fmt.Sprintf("/users/%s/repos", testOwner)).ResponseString(http.StatusOK, `[]`)
+	ts := r.Server()
+	t.Cleanup(func() {
+		ts.Close()
+	})
+	t.Setenv("GITHUB_API_URL", ts.URL)
+	t.Run("t", func(t *testing.T) {
+		t.Parallel() // to set GH_CONFIG_DIR and create new config
+		c, err := factory.NewGithubClient()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, _, err := c.Repositories.List(context.Background(), testOwner, nil); err != nil {
 			t.Error(err)
 		}
 	})
