@@ -1,2 +1,4 @@
 /**/*-e
+.envrc
 coverage.out
+go.work
