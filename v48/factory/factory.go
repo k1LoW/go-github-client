@@ -289,8 +289,22 @@ func detectInstallationID(appID int64, privateKey []byte, ep string) (int64, err
 }
 
 func detectOwnerRepo() (string, string, error) {
+	if hostownerrepo := os.Getenv("GH_REPO"); hostownerrepo != "" {
+		splitted := strings.Split(hostownerrepo, "/")
+		switch {
+		case len(splitted) < 2:
+			return "", "", fmt.Errorf("invalid env GH_REPO: %s", hostownerrepo)
+		case len(splitted) == 3:
+			return splitted[1], splitted[2], nil
+		default:
+			return splitted[0], splitted[1], nil
+		}
+	}
 	if ownerrepo := os.Getenv("GITHUB_REPOSITORY"); ownerrepo != "" {
 		splitted := strings.Split(ownerrepo, "/")
+		if len(splitted) < 2 {
+			return "", "", fmt.Errorf("invalid env GITHUB_REPOSITORY: %s", ownerrepo)
+		}
 		return splitted[0], splitted[1], nil
 	}
 	if owner := os.Getenv("GITHUB_REPOSITORY_OWNER"); owner != "" {
