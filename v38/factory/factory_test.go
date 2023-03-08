@@ -133,7 +133,7 @@ func TestNewGithubClientUsingMock(t *testing.T) {
 		t.Fatal(err)
 	}
 	ctx := context.Background()
-	user, _, err := c.Users.Get(ctx, "myuser")
+	user, _, err := c.Users.Get(ctx, "foobar")
 	if err != nil {
 		t.Fatal(err)
 	}
