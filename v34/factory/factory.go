@@ -1,6 +1,7 @@
 package factory
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net"
@@ -209,19 +210,26 @@ func newHTTPClientUsingGitHubApp(c *Config, ep string) (*http.Client, error) {
 	envAppID := os.Getenv("GITHUB_APP_ID")
 	envInstallaitonID := os.Getenv("GITHUB_APP_INSTALLATION_ID")
 	envPrivateKey := os.Getenv("GITHUB_APP_PRIVATE_KEY")
-	if envAppID == "" || envInstallaitonID == "" || envPrivateKey == "" {
-		// TODO: detect installationID
+	if envAppID == "" || envPrivateKey == "" {
 		return nil, errors.New("not enough credentials to authenticate using GitHub app")
 	}
 	appID, err := strconv.ParseInt(envAppID, 10, 64)
 	if err != nil {
 		return nil, err
 	}
-	installationID, err := strconv.ParseInt(envInstallaitonID, 10, 64)
-	if err != nil {
-		return nil, err
-	}
 	privateKey := []byte(repairKey(envPrivateKey))
+	var installationID int64
+	if envInstallaitonID == "" {
+		installationID, err = detectInstallationID(appID, privateKey, ep)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		installationID, err = strconv.ParseInt(envInstallaitonID, 10, 64)
+		if err != nil {
+			return nil, err
+		}
+	}
 	hc := httpClient(c)
 	itr, err := ghinstallation.New(http.DefaultTransport, appID, installationID, privateKey)
 	if err != nil {
@@ -230,6 +238,65 @@ func newHTTPClientUsingGitHubApp(c *Config, ep string) (*http.Client, error) {
 	itr.BaseURL = ep
 	hc.Transport = itr
 	return hc, nil
+}
+
+func detectInstallationID(appID int64, privateKey []byte, ep string) (int64, error) {
+	owner, repo, err := detectOwnerRepo()
+	if err != nil {
+		return 0, err
+	}
+	tr := http.DefaultTransport
+	atr, err := ghinstallation.NewAppsTransport(tr, appID, privateKey)
+	if err != nil {
+		return 0, err
+	}
+	atr.BaseURL = ep
+	hc := &http.Client{Transport: atr}
+	gc := github.NewClient(hc)
+	baseEndpoint, err := url.Parse(ep)
+	if err != nil {
+		return 0, err
+	}
+	if !strings.HasSuffix(baseEndpoint.Path, "/") {
+		baseEndpoint.Path += "/"
+	}
+	gc.BaseURL = baseEndpoint
+	ctx := context.Background()
+	if repo != "" {
+		i, _, err := gc.Apps.FindRepositoryInstallation(ctx, owner, repo)
+		if err != nil {
+			return 0, err
+		}
+		return i.GetID(), nil
+	}
+	page := 0
+	for {
+		is, res, err := gc.Apps.ListInstallations(context.Background(), &github.ListOptions{Page: page, PerPage: 1000})
+		if err != nil {
+			return 0, err
+		}
+		for _, i := range is {
+			if owner == i.GetAccount().GetLogin() {
+				return i.GetID(), nil
+			}
+		}
+		if res.NextPage >= res.LastPage {
+			break
+		}
+		page = res.NextPage
+	}
+	return 0, fmt.Errorf("could not installation for %s", owner)
+}
+
+func detectOwnerRepo() (string, string, error) {
+	if ownerrepo := os.Getenv("GITHUB_REPOSITORY"); ownerrepo != "" {
+		splitted := strings.Split(ownerrepo, "/")
+		return splitted[0], splitted[1], nil
+	}
+	if owner := os.Getenv("GITHUB_REPOSITORY_OWNER"); owner != "" {
+		return owner, "", nil
+	}
+	return "", "", errors.New("could not detect repository")
 }
 
 func httpClient(c *Config) *http.Client {
