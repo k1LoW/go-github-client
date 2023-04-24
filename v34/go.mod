@@ -6,8 +6,8 @@ require (
 	github.com/bradleyfalzon/ghinstallation/v2 v2.3.0
 	github.com/cli/go-gh v1.2.1
 	github.com/google/go-github/v34 v34.0.0
-	github.com/k1LoW/httpstub v0.9.0
-	github.com/migueleliasweb/go-github-mock v0.0.16
+	github.com/k1LoW/httpstub v0.10.0
+	github.com/migueleliasweb/go-github-mock v0.0.17
 )
 
 require (
