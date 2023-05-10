@@ -4,7 +4,6 @@ go 1.20
 
 require (
 	github.com/bradleyfalzon/ghinstallation/v2 v2.4.0
-	github.com/cli/go-gh v1.2.1
 	github.com/cli/go-gh/v2 v2.0.0
 	github.com/google/go-github/v33 v33.0.0
 	github.com/k1LoW/httpstub v0.10.0
