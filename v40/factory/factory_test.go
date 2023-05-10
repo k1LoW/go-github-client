@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/cli/go-gh/pkg/config"
+	"github.com/cli/go-gh/v2/pkg/config"
 	"github.com/google/go-github/v40/github"
 	"github.com/migueleliasweb/go-github-mock/src/mock"
 )

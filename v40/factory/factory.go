@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/bradleyfalzon/ghinstallation/v2"
-	"github.com/cli/go-gh/pkg/auth"
+	"github.com/cli/go-gh/v2/pkg/auth"
 	"github.com/google/go-github/v40/github"
 )
 
