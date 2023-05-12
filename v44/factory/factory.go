@@ -164,12 +164,18 @@ func NewGithubClient(opts ...Option) (*github.Client, error) {
 }
 
 // GetTokenAndEndpoints returns token and endpoints. The endpoints to be generated are URLs without a trailing slash.
-func GetTokenAndEndpoints() (string, string, string, string) {
-	host, _ := auth.DefaultHost()
-	token, _ := auth.TokenForHost(host)
-	v3ep := defaultV3Endpoint
-	v3upload := defaultUploadEndpoint
-	v4ep := defaultV4Endpoint
+func GetTokenAndEndpoints() (token string, v3ep string, v3upload string, v4ep string) {
+	token, v3ep, v3upload, v4ep, _, _, _ = GetAllDetected()
+	return token, v3ep, v3upload, v4ep
+}
+
+// GetAllDetected returns token, endpoints, host and sources. The endpoints to be generated are URLs without a trailing slash.
+func GetAllDetected() (token, v3ep, v3upload, v4ep, host, hostSource, tokenSource string) {
+	host, hostSource = auth.DefaultHost()
+	token, tokenSource = auth.TokenForHost(host)
+	v3ep = defaultV3Endpoint
+	v3upload = defaultUploadEndpoint
+	v4ep = defaultV4Endpoint
 	if host != defaultHost {
 		// GitHub Enterprise Server
 		v3ep = fmt.Sprintf("https://%s/api/v3", host)
@@ -191,7 +197,7 @@ func GetTokenAndEndpoints() (string, string, string, string) {
 		}
 	}
 
-	return token, v3ep, v3upload, v4ep
+	return token, v3ep, v3upload, v4ep, host, hostSource, tokenSource
 }
 
 type roundTripper struct {
