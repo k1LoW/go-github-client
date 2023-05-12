@@ -14,6 +14,7 @@ cd $dest
 echo "module \"$(pwd | sed -e 's/.*\/src\///')\"" > go.mod
 go mod tidy
 go get -u golang.org/x/crypto
+go get -u github.com/cloudflare/circl
 go mod tidy
 go test ./...
 git add .
