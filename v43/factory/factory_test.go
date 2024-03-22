@@ -16,7 +16,7 @@ func TestGetTokenAndEndpoints(t *testing.T) {
 	t.Setenv("GH_CONFIG_DIR", filepath.Join(testdataDir(t), "config"))
 	// set config
 	// ref: https://github.com/cli/go-gh/blob/98bbeb261673e1c506e965ab1553bfbaf5318250/pkg/config/config.go#L124-L128
-	_, _ = config.Read()
+	_, _ = config.Read(&config.Config{})
 
 	tests := []struct {
 		GH_HOST                 string
