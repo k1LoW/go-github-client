@@ -145,6 +145,8 @@ func TestNewGithubClientUsingMock(t *testing.T) {
 
 func TestDetectOwnerRepo(t *testing.T) {
 	tests := []struct {
+		owner                   string
+		repo                    string
 		GH_REPO                 string
 		GITHUB_REPOSITORY       string
 		GITHUB_REPOSITORY_OWNER string
@@ -152,19 +154,26 @@ func TestDetectOwnerRepo(t *testing.T) {
 		wantRepo                string
 		wantErr                 bool
 	}{
-		{"", "", "", "", "", true},
-		{"example/myrepo", "", "", "example", "myrepo", false},
-		{"git.example.com/example/myrepo", "", "", "example", "myrepo", false},
-		{"", "example/myrepo", "", "example", "myrepo", false},
-		{"example/ourrepo", "example/myrepo", "", "example", "ourrepo", false},
-		{"", "", "example", "example", "", false},
+		{"", "", "", "", "", "", "", true},
+		{"", "", "example/myrepo", "", "", "example", "myrepo", false},
+		{"", "", "git.example.com/example/myrepo", "", "", "example", "myrepo", false},
+		{"", "", "", "example/myrepo", "", "example", "myrepo", false},
+		{"", "", "example/ourrepo", "example/myrepo", "", "example", "ourrepo", false},
+		{"", "", "", "", "example", "example", "", false},
+		{"owner", "", "", "", "", "owner", "", false},
+		{"owner", "repo", "", "", "", "owner", "repo", false},
+		{"owner", "repo", "example/myrepo", "", "", "owner", "repo", false},
 	}
 	for i, tt := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
 			t.Setenv("GH_REPO", tt.GH_REPO)
 			t.Setenv("GITHUB_REPOSITORY", tt.GITHUB_REPOSITORY)
 			t.Setenv("GITHUB_REPOSITORY_OWNER", tt.GITHUB_REPOSITORY_OWNER)
-			gotOwner, gotRepo, err := detectOwnerRepo()
+			c := &Config{
+				Owner: tt.owner,
+				Repo:  tt.repo,
+			}
+			gotOwner, gotRepo, err := detectOwnerRepo(c)
 			if err != nil {
 				if !tt.wantErr {
 					t.Errorf("got error: %v", err)
