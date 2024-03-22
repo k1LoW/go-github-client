@@ -25,6 +25,8 @@ const defaultV4Endpoint = "https://api.github.com/graphql"
 type Config struct {
 	Token               string
 	Endpoint            string
+	Owner               string
+	Repo                string
 	DialTimeout         time.Duration
 	TLSHandshakeTimeout time.Duration
 	Timeout             time.Duration
@@ -91,6 +93,25 @@ func HTTPClient(httpClient *http.Client) Option {
 func SkipAuth(enable bool) Option {
 	return func(c *Config) error {
 		c.SkipAuth = enable
+		return nil
+	}
+}
+
+func Owner(owner string) Option {
+	return func(c *Config) error {
+		c.Owner = owner
+		return nil
+	}
+}
+
+func OwnerRepo(ownerrepo string) Option {
+	return func(c *Config) error {
+		splitted := strings.Split(ownerrepo, "/")
+		if len(splitted) != 2 {
+			return errors.New("invalid owner/repo format")
+		}
+		c.Owner = splitted[0]
+		c.Repo = splitted[1]
 		return nil
 	}
 }
@@ -226,7 +247,7 @@ func newHTTPClientUsingGitHubApp(c *Config, ep string) (*http.Client, error) {
 	privateKey := []byte(repairKey(envPrivateKey))
 	var installationID int64
 	if envInstallaitonID == "" {
-		installationID, err = detectInstallationID(appID, privateKey, ep)
+		installationID, err = detectInstallationID(c, appID, privateKey, ep)
 		if err != nil {
 			return nil, err
 		}
@@ -246,8 +267,8 @@ func newHTTPClientUsingGitHubApp(c *Config, ep string) (*http.Client, error) {
 	return hc, nil
 }
 
-func detectInstallationID(appID int64, privateKey []byte, ep string) (int64, error) {
-	owner, repo, err := detectOwnerRepo()
+func detectInstallationID(c *Config, appID int64, privateKey []byte, ep string) (int64, error) {
+	owner, repo, err := detectOwnerRepo(c)
 	if err != nil {
 		return 0, err
 	}
@@ -294,7 +315,10 @@ func detectInstallationID(appID int64, privateKey []byte, ep string) (int64, err
 	return 0, fmt.Errorf("could not installation for %s", owner)
 }
 
-func detectOwnerRepo() (string, string, error) {
+func detectOwnerRepo(c *Config) (string, string, error) {
+	if c.Owner != "" {
+		return c.Owner, c.Repo, nil
+	}
 	if hostownerrepo := os.Getenv("GH_REPO"); hostownerrepo != "" {
 		splitted := strings.Split(hostownerrepo, "/")
 		switch {
