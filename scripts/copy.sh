@@ -16,6 +16,7 @@ go mod tidy
 go get -u golang.org/x/crypto
 go get -u github.com/cloudflare/circl
 go mod tidy
+go generate ./...
 go test ./...
 git add .
 git commit -m "Update $dest"

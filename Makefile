@@ -1,9 +1,12 @@
 BASE_GO_GITHUB = 33
-LATEST_GO_GITHUB ?= 60
+LATEST_GO_GITHUB ?= 62
 
 default: test
 
 ci: test
+
+deps:
+	go install github.com/rjeczalik/interfaces/cmd/interfacer@latest
 
 test:
 	cd v$(BASE_GO_GITHUB)/ && go test -v ./... -coverprofile=coverage.out -covermode=count

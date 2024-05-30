@@ -1,3 +1,4 @@
+//go:generate interfacer -for "github.com/google/go-github/v33/github.Client" -as factory.GithubClient -o interface.go
 package factory
 
 import (
