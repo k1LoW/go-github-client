@@ -1,6 +1,6 @@
 module github.com/k1LoW/go-github-client/v34
 
-go 1.22.8
+go 1.22.9
 
 require (
 	github.com/bradleyfalzon/ghinstallation/v2 v2.12.0
