@@ -1,5 +1,5 @@
 BASE_GO_GITHUB = 33
-LATEST_GO_GITHUB ?= 66
+LATEST_GO_GITHUB ?= 67
 
 default: test
 
