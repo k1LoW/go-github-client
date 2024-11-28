@@ -1,13 +1,13 @@
 module github.com/k1LoW/go-github-client/v36
 
-go 1.23.1
+go 1.22.9
 
 require (
-	github.com/bradleyfalzon/ghinstallation/v2 v2.11.0
-	github.com/cli/go-gh/v2 v2.11.0
+	github.com/bradleyfalzon/ghinstallation/v2 v2.12.0
+	github.com/cli/go-gh/v2 v2.11.1
 	github.com/google/go-github/v36 v36.0.0
-	github.com/k1LoW/httpstub v0.17.0
-	github.com/migueleliasweb/go-github-mock v1.1.0
+	github.com/k1LoW/httpstub v0.18.0
+	github.com/migueleliasweb/go-github-mock v1.0.1
 )
 
 require (
@@ -15,9 +15,9 @@ require (
 	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/cli/safeexec v1.0.0 // indirect
 	github.com/dprotaso/go-yit v0.0.0-20220510233725-9ba8df137936 // indirect
-	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
-	github.com/google/go-github/v62 v62.0.0 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.1 // indirect
 	github.com/google/go-github/v64 v64.0.0 // indirect
+	github.com/google/go-github/v66 v66.0.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
