@@ -1,5 +1,22 @@
+run:
+  timeout: 2m
 linters:
+  fast: false
   enable:
+    - misspell
     - gosec
-issues:
-  exclude-use-default: false
+    - godot
+    - revive
+    - errorlint
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+  misspell:
+    locale: US
+    ignore-words: []
+  revive:
+    rules:
+      - name: unexported-return
+        disabled: true
+      - name: exported
+        disabled: false

@@ -28,8 +28,8 @@ jobs:
         uses: reviewdog/action-golangci-lint@v2
         with:
           workdir: v33/
-          fail_on_error: true
-          go_version_file: go.mod
+          fail_level: any
+          go_version_file: v33/go.mod
           golangci_lint_flags: '--config=../.golangci.yml --timeout=5m'
 
       - name: Test
