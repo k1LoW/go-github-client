@@ -2,7 +2,7 @@
 
 src=$1
 dest=$2
-patch=14
+patch=15
 
 rm -rf $dest
 cp -r $src $dest
@@ -15,6 +15,8 @@ echo "module \"$(pwd | sed -e 's/.*\/src\///')\"" > go.mod
 go mod tidy
 go get -u golang.org/x/crypto
 go get -u github.com/cloudflare/circl
+go get -u google.golang.org/protobuf
+go get -u
 go mod tidy
 go test ./...
 git add .
