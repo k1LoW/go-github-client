@@ -10,12 +10,17 @@ jobs:
   job-test:
     name: Test
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Check out source code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version-file: v33/go.mod
 
@@ -23,7 +28,9 @@ jobs:
         uses: reviewdog/action-golangci-lint@v2
         with:
           workdir: v33/
-          golangci_lint_flags: '--config=../.golangci.yml'
+          fail_on_error: true
+          go_version_file: go.mod
+          golangci_lint_flags: '--config=../.golangci.yml --timeout=5m'
 
       - name: Test
         run: make ci
@@ -31,7 +38,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run octocov
-        uses: k1LoW/octocov-action@v0
+        uses: k1LoW/octocov-action@v1
 
       - name: Run Trivy vulnerability scanner in repo mode
         uses: aquasecurity/trivy-action@master
