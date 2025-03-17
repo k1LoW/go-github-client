@@ -14,6 +14,7 @@ import (
 const (
 	testAppID          = 1
 	testInstallationID = 2
+	//nolint:gosec
 	testPrivateKey     = `-----BEGIN RSA PRIVATE KEY-----
 MIIEpAIBAAKCAQEAxN+b3zon7HKP3vd7wxMpXfugseMzk7NAdYzq23Ipv9MC/CPD
 gaPFjH0vFVoBdn5JL7XqUjOM2qbYdkjHWK4+PACntKaHhOkb22HBl9N5evpibLMM
