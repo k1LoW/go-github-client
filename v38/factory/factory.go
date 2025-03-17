@@ -116,7 +116,7 @@ func OwnerRepo(ownerrepo string) Option {
 	}
 }
 
-// NewGithubClient returns github.com/google/go-github/v38/github.Client with environment variable resolution
+// NewGithubClient returns github.com/google/go-github/v38/github.Client with environment variable resolution.
 func NewGithubClient(opts ...Option) (*github.Client, error) {
 	c := &Config{
 		Token:               "",
