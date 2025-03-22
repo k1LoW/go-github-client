@@ -1,6 +1,6 @@
 module github.com/k1LoW/go-github-client/v39
 
-go 1.23.7
+go 1.23.6
 
 require (
 	github.com/bradleyfalzon/ghinstallation/v2 v2.14.0
@@ -15,7 +15,7 @@ require (
 	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/cli/safeexec v1.0.0 // indirect
 	github.com/dprotaso/go-yit v0.0.0-20240618133044-5a0af90af097 // indirect
-	github.com/golang-jwt/jwt/v4 v4.5.1 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/google/go-github/v64 v64.0.0 // indirect
 	github.com/google/go-github/v69 v69.0.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
