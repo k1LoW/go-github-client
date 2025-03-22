@@ -2,7 +2,7 @@
 
 src=$1
 dest=$2
-patch=15
+patch=16
 
 rm -rf $dest
 cp -r $src $dest
@@ -16,6 +16,7 @@ go mod tidy
 go get -u golang.org/x/crypto
 go get -u github.com/cloudflare/circl
 go get -u google.golang.org/protobuf
+go get -u github.com/golang-jwt/jwt/v4
 go get -u
 go mod tidy
 go test ./...
