@@ -4,7 +4,7 @@ go 1.23.8
 
 require (
 	github.com/bradleyfalzon/ghinstallation/v2 v2.15.0
-	github.com/cli/go-gh/v2 v2.12.0
+	github.com/cli/go-gh/v2 v2.12.1
 	github.com/google/go-github/v36 v36.0.0
 	github.com/k1LoW/httpstub v0.20.1
 	github.com/migueleliasweb/go-github-mock v1.1.0
