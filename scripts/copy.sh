@@ -15,9 +15,11 @@ echo "module \"$(pwd | sed -e 's/.*\/src\///')\"" > go.mod
 go mod tidy
 go get -u golang.org/x/crypto
 go get -u golang.org/x/net
+go get -u golang.org/x/oauth2
 go get -u github.com/cloudflare/circl
 go get -u google.golang.org/protobuf
 go get -u github.com/golang-jwt/jwt/v4
+go get -u github.com/cli/go-gh/v2
 go get -u
 go mod tidy
 go test ./...
