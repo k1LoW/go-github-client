@@ -12,6 +12,7 @@ find $dest -type f | xargs sed -i -e "s#google/go-github/$src#google/go-github/$
 find $dest -type f | grep -e '-e' | xargs rm
 cd $dest
 echo "module \"$(pwd | sed -e 's/.*\/src\///')\"" > go.mod
+go get -u github.com/migueleliasweb/go-github-mock@v1.3.0
 go mod tidy
 go get -u golang.org/x/crypto
 go get -u golang.org/x/net
