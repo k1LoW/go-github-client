@@ -1,10 +1,10 @@
 module github.com/k1LoW/go-github-client/v48
 
-go 1.25.0
+go 1.24.10
 
 require (
 	github.com/bradleyfalzon/ghinstallation/v2 v2.17.0
-	github.com/cli/go-gh/v2 v2.13.0
+	github.com/cli/go-gh/v2 v2.12.2
 	github.com/google/go-github/v48 v48.2.0
 	github.com/k1LoW/httpstub v0.27.2
 	github.com/migueleliasweb/go-github-mock v1.3.0
