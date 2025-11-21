@@ -2,7 +2,7 @@
 
 src=$1
 dest=$2
-patch=20
+patch=21
 
 rm -rf $dest
 cp -r $src $dest
@@ -12,16 +12,15 @@ find $dest -type f | xargs sed -i -e "s#google/go-github/$src#google/go-github/$
 find $dest -type f | grep -e '-e' | xargs rm
 cd $dest
 echo "module \"$(pwd | sed -e 's/.*\/src\///')\"" > go.mod
+echo "go 1.24.10" >> go.mod # <--- Set the Go version here
 go get -u github.com/migueleliasweb/go-github-mock@v1.3.0
-go mod tidy
+go get -u github.com/cli/go-gh/v2@v2.12.2 # <--- This version is required for go 1.24
 go get -u golang.org/x/crypto
 go get -u golang.org/x/net
 go get -u golang.org/x/oauth2
 go get -u github.com/cloudflare/circl
 go get -u google.golang.org/protobuf
 go get -u github.com/golang-jwt/jwt/v4
-go get -u github.com/cli/go-gh/v2
-go get -u
 go mod tidy
 go test ./...
 git add .
