@@ -2,7 +2,7 @@
 
 src=$1
 dest=$2
-patch=22
+patch=23
 
 rm -rf $dest
 cp -r $src $dest
