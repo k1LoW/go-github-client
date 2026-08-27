@@ -13,8 +13,9 @@ lint:
 
 update:
 	for i in {34..87}; do scripts/copy.sh v$(BASE_GO_GITHUB) v$$i; done
+	scripts/copy.sh v87 v$(BASE_GO_GITHUB)
 	for i in {89..$(LATEST_GO_GITHUB)}; do scripts/copy.sh v88 v$$i; done
-	scripts/copy.sh v$(LATEST_GO_GITHUB) v$(BASE_GO_GITHUB)
+	scripts/copy.sh v$(LATEST_GO_GITHUB) v88
 
 release:
 	git push origin main --tag
