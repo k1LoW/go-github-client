@@ -99,8 +99,8 @@ func TestEndpoint(t *testing.T) {
 			continue
 		}
 
-		gotEndpoint := client.BaseURL.String()
-		gotUploadURL := client.UploadURL.String()
+		gotEndpoint := client.BaseURL()
+		gotUploadURL := client.UploadURL()
 
 		if gotEndpoint != tt.wantEndpoint {
 			t.Errorf("got %v\nwant %v", gotEndpoint, tt.wantEndpoint)
