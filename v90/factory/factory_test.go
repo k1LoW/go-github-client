@@ -124,7 +124,7 @@ func TestNewGithubClientUsingMock(t *testing.T) {
 		mock.WithRequestMatch(
 			mock.GetUsersByUsername,
 			github.User{
-				Name: github.String("foobar"),
+				Name: github.Ptr("foobar"),
 			},
 		),
 	)
