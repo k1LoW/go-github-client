@@ -99,8 +99,8 @@ func TestEndpoint(t *testing.T) {
 			continue
 		}
 
-		gotEndpoint := client.BaseURL()
-		gotUploadURL := client.UploadURL()
+		gotEndpoint := client.BaseURL.String()
+		gotUploadURL := client.UploadURL.String()
 
 		if gotEndpoint != tt.wantEndpoint {
 			t.Errorf("got %v\nwant %v", gotEndpoint, tt.wantEndpoint)
@@ -124,7 +124,7 @@ func TestNewGithubClientUsingMock(t *testing.T) {
 		mock.WithRequestMatch(
 			mock.GetUsersByUsername,
 			github.User{
-				Name: github.Ptr("foobar"),
+				Name: github.String("foobar"),
 			},
 		),
 	)

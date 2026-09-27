@@ -153,6 +153,7 @@ func NewGithubClient(opts ...Option) (*github.Client, error) {
 		c.HTTPClient = hc
 	}
 
+	v3c := github.NewClient(httpClient(c))
 	baseEndpoint, err := url.Parse(ep)
 	if err != nil {
 		return nil, err
@@ -160,12 +161,14 @@ func NewGithubClient(opts ...Option) (*github.Client, error) {
 	if !strings.HasSuffix(baseEndpoint.Path, "/") {
 		baseEndpoint.Path += "/"
 	}
-	baseURL := baseEndpoint.String()
-	uploadURL := v3upload
+	v3c.BaseURL = baseEndpoint
 
 	if c.Endpoint != "" {
 		if !strings.Contains(baseEndpoint.Host, defaultHost) {
-			uploadURL = fmt.Sprintf("https://%s/api/uploads/", baseEndpoint.Host)
+			v3c.UploadURL, err = url.Parse(fmt.Sprintf("https://%s/api/uploads/", baseEndpoint.Host))
+			if err != nil {
+				return nil, err
+			}
 		}
 	} else {
 		uploadEndpoint, err := url.Parse(v3upload)
@@ -175,15 +178,7 @@ func NewGithubClient(opts ...Option) (*github.Client, error) {
 		if !strings.HasSuffix(uploadEndpoint.Path, "/") {
 			uploadEndpoint.Path += "/"
 		}
-		uploadURL = uploadEndpoint.String()
-	}
-
-	v3c, err := github.NewClient(
-		github.WithHTTPClient(httpClient(c)),
-		github.WithURLs(&baseURL, &uploadURL),
-	)
-	if err != nil {
-		return nil, err
+		v3c.UploadURL = uploadEndpoint
 	}
 
 	return v3c, nil
@@ -284,6 +279,7 @@ func detectInstallationID(c *Config, appID int64, privateKey []byte, ep string) 
 	}
 	atr.BaseURL = ep
 	hc := &http.Client{Transport: atr}
+	gc := github.NewClient(hc)
 	baseEndpoint, err := url.Parse(ep)
 	if err != nil {
 		return 0, err
@@ -291,17 +287,10 @@ func detectInstallationID(c *Config, appID int64, privateKey []byte, ep string) 
 	if !strings.HasSuffix(baseEndpoint.Path, "/") {
 		baseEndpoint.Path += "/"
 	}
-	baseURL := baseEndpoint.String()
-	gc, err := github.NewClient(
-		github.WithHTTPClient(hc),
-		github.WithURLs(&baseURL, nil),
-	)
-	if err != nil {
-		return 0, err
-	}
+	gc.BaseURL = baseEndpoint
 	ctx := context.Background()
 	if repo != "" {
-		i, _, err := gc.Apps.GetRepositoryInstallation(ctx, owner, repo)
+		i, _, err := gc.Apps.FindRepositoryInstallation(ctx, owner, repo)
 		if err != nil {
 			return 0, err
 		}
@@ -359,9 +348,9 @@ func httpClient(c *Config) *http.Client {
 		return c.HTTPClient
 	}
 	t := &http.Transport{
-		DialContext: (&net.Dialer{
+		Dial: (&net.Dialer{
 			Timeout: c.DialTimeout,
-		}).DialContext,
+		}).Dial,
 		TLSHandshakeTimeout: c.TLSHandshakeTimeout,
 	}
 	rt := roundTripper{

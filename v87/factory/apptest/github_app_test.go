@@ -69,7 +69,7 @@ func TestAuthUsingGitHubApp(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if _, _, err := c.Repositories.ListByUser(context.Background(), testOwner, nil); err != nil {
+		if _, _, err := c.Repositories.List(context.Background(), testOwner, nil); err != nil {
 			t.Error(err)
 		}
 	})
@@ -98,7 +98,7 @@ func TestAuthUsingGitHubAppNoInstallationID(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if _, _, err := c.Repositories.ListByUser(context.Background(), testOwner, nil); err != nil {
+		if _, _, err := c.Repositories.List(context.Background(), testOwner, nil); err != nil {
 			t.Error(err)
 		}
 	})
