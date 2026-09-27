@@ -359,9 +359,9 @@ func httpClient(c *Config) *http.Client {
 		return c.HTTPClient
 	}
 	t := &http.Transport{
-		Dial: (&net.Dialer{
+		DialContext: (&net.Dialer{
 			Timeout: c.DialTimeout,
-		}).Dial,
+		}).DialContext,
 		TLSHandshakeTimeout: c.TLSHandshakeTimeout,
 	}
 	rt := roundTripper{
